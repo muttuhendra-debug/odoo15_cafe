@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cafe_order_form_template" name="Cafe Order Form">
+        <t t-call="website.layout">
+            <t t-set="no_header" t-value="0"/>
+            <t t-set="no_footer" t-value="1"/>
+            <style type="text/css">
+                header #top_menu,
+                header .navbar-nav,
+                header .nav-item,
+                header .btn,
+                header .o_header_standard .btn,
+                header .btn-primary,
+                header a:not(.navbar-brand),
+                header .navbar-collapse > *:not(.navbar-brand) {
+                    display: none !important;
+                }
+                header .navbar-brand {
+                    display: block !important;
+                }
+            </style>
+            <div id="wrap" class="oe_structure oe_empty py-4">
+                <div class="container" style="max-width: 720px;">
+                    <div class="card shadow-sm border-0 rounded-lg">
+                        <div class="card-header text-white text-center py-3" style="background-color: #f05c24 !important;">
+                            <h3 class="mb-0 font-weight-bold text-white">Form Order Cafe</h3>
+                            <p class="small mb-0 text-white" style="opacity: 0.85;">Input Pesanan Pelanggan</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <t t-if="submitted">
+                                <div class="alert alert-success text-center" role="alert">
+                                    <h5 class="alert-heading font-weight-bold">Pesanan Berhasil Dibuat!</h5>
+                                    <p class="mb-1">Nomor Pesanan: <strong><t t-esc="order.name"/></strong></p>
+                                    <p class="mb-0">Pesanan telah tercatat dan disinkronkan ke Check Order List.</p>
+                                </div>
+                                <div class="text-center mt-4">
+                                    <a href="/cafe/order" class="btn btn-primary btn-block rounded-pill">Buat Order Baru</a>
+                                </div>
+                            </t>
+
+                            <t t-if="not submitted">
+                                <t t-if="error">
+                                    <div class="alert alert-danger" role="alert">
+                                        <t t-esc="error"/>
+                                    </div>
+                                </t>
+
+                                <form action="/cafe/order/submit" method="post" id="cafeOrderForm">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                    <div class="form-group mb-3">
+                                        <label for="customer_name" class="form-label font-weight-bold">Nama Pelanggan <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-lg" id="customer_name" name="customer_name" placeholder="Contoh: Budi" required="required"/>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="mobile_phone" class="form-label font-weight-bold">No. Telepon / Mobile Phone</label>
+                                        <input type="tel" class="form-control form-control-lg" id="mobile_phone" name="mobile_phone" placeholder="Contoh: 08123456789"/>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="table_number" class="form-label font-weight-bold">Nomor Meja <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control form-control-lg" id="table_number" name="table_number" placeholder="Contoh: Meja 05" required="required"/>
+                                    </div>
+
+                                    <hr class="my-4"/>
+
+                                    <h5 class="font-weight-bold mb-3">Daftar Menu Pesanan</h5>
+
+                                    <!-- Shared Datalist for Product Search -->
+                                    <datalist id="productList">
+                                        <t t-foreach="products" t-as="p">
+                                            <option t-att-value="p.display_name" t-att-data-id="p.id" t-att-data-barcode="p.barcode or ''" t-att-data-price="p.lst_price"/>
+                                        </t>
+                                    </datalist>
+
+                                    <div id="productLinesContainer">
+                                        <div class="card mb-3 border-light bg-light product-line-item p-3 rounded">
+                                            <div class="row g-2">
+                                                <div class="col-12 col-md-5 mb-2">
+                                                    <label class="form-label small font-weight-bold">Cari / Pilih Produk <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required"/>
+                                                    <input type="hidden" class="product-id-input" name="product_id[]" required="required"/>
+                                                    <input type="hidden" class="barcode-input" name="barcode[]"/>
+                                                </div>
+                                                <div class="col-6 col-md-4 mb-2">
+                                                    <label class="form-label small font-weight-bold">Harga Jual</label>
+                                                    <input type="number" step="any" min="0" class="form-control price-unit-input" name="price_unit[]" placeholder="0" readonly="readonly"/>
+                                                </div>
+                                                <div class="col-4 col-md-2 mb-2">
+                                                    <label class="form-label small font-weight-bold">Qty</label>
+                                                    <input type="number" step="1" min="1" class="form-control quantity-input" name="quantity[]" value="1" required="required"/>
+                                                </div>
+                                                <div class="col-2 col-md-1 mb-2 d-flex align-items-end justify-content-end">
+                                                    <button type="button" class="btn btn-outline-danger btn-remove-line" title="Hapus Menu">&amp;times;</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <button type="button" class="btn btn-outline-success btn-sm font-weight-bold" id="btnAddProduct">
+                                            + Tambah Menu Lain
+                                        </button>
+                                        <div class="text-right text-end font-weight-bold">
+                                            <span class="h6 mb-0 font-weight-bold">Total Harga: </span>
+                                            <span id="grandTotalDisplay" class="h5 mb-0 text-primary font-weight-bold">Rp 0</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-lg btn-block w-100 rounded-pill shadow-sm text-white" style="background-color: #f05c24 !important; border-color: #f05c24 !important;">Kirim Order</button>
+                                </form>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function () {
+                    var container = document.getElementById('productLinesContainer');
+                    var btnAdd = document.getElementById('btnAddProduct');
+                    var datalist = document.getElementById('productList');
+
+                    function calculateGrandTotal() {
+                        var grandTotalDisplay = document.getElementById('grandTotalDisplay');
+                        if (!grandTotalDisplay || !container) return;
+
+                        var lines = container.querySelectorAll('.product-line-item');
+                        var total = 0;
+
+                        lines.forEach(function (line) {
+                            var priceInput = line.querySelector('.price-unit-input');
+                            var qtyInput = line.querySelector('.quantity-input');
+
+                            var price = parseFloat(priceInput ? priceInput.value : 0) || 0;
+                            var qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
+
+                            total += price * qty;
+                        });
+
+                        grandTotalDisplay.textContent = 'Rp ' + Math.round(total).toLocaleString('id-ID');
+                    }
+
+                    function updateProductData(element) {
+                        var searchInput = element.querySelector('.product-search-input');
+                        var hiddenIdInput = element.querySelector('.product-id-input');
+                        var barcodeInput = element.querySelector('.barcode-input');
+                        var priceInput = element.querySelector('.price-unit-input');
+
+                        if (!searchInput || !hiddenIdInput || !datalist) return;
+
+                        var val = searchInput.value;
+                        var options = datalist.options;
+                        var matched = false;
+
+                        for (var i = 0; i &lt; options.length; i++) {
+                            var opt = options[i];
+                            if (opt.value === val) {
+                                hiddenIdInput.value = opt.getAttribute('data-id') || '';
+                                if (barcodeInput) barcodeInput.value = opt.getAttribute('data-barcode') || '';
+                                if (priceInput) priceInput.value = opt.getAttribute('data-price') || '0';
+                                matched = true;
+                                break;
+                            }
+                        }
+
+                        if (!matched) {
+                            hiddenIdInput.value = '';
+                            if (barcodeInput) barcodeInput.value = '';
+                            if (priceInput) priceInput.value = '';
+                        }
+
+                        calculateGrandTotal();
+                    }
+
+                    function bindProductSelectEvent(element) {
+                        var searchInput = element.querySelector('.product-search-input');
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function () {
+                                updateProductData(element);
+                            });
+                            searchInput.addEventListener('change', function () {
+                                updateProductData(element);
+                            });
+                        }
+
+                        var qtyInput = element.querySelector('.quantity-input');
+                        if (qtyInput) {
+                            qtyInput.addEventListener('input', calculateGrandTotal);
+                            qtyInput.addEventListener('change', calculateGrandTotal);
+                        }
+
+                        var priceInput = element.querySelector('.price-unit-input');
+                        if (priceInput) {
+                            priceInput.addEventListener('input', calculateGrandTotal);
+                            priceInput.addEventListener('change', calculateGrandTotal);
+                        }
+
+                        var btnRemove = element.querySelector('.btn-remove-line');
+                        if (btnRemove) {
+                            btnRemove.addEventListener('click', function () {
+                                var lines = container.querySelectorAll('.product-line-item');
+                                if (lines.length &gt; 1) {
+                                    element.remove();
+                                    calculateGrandTotal();
+                                } else {
+                                    alert('Minimal harus ada 1 menu pesanan.');
+                                }
+                            });
+                        }
+                    }
+
+                    var initialLine = container.querySelector('.product-line-item');
+                    if (initialLine) {
+                        bindProductSelectEvent(initialLine);
+                    }
+
+                    if (btnAdd) {
+                        btnAdd.addEventListener('click', function () {
+                            var firstLine = container.querySelector('.product-line-item');
+                            if (firstLine) {
+                                var clone = firstLine.cloneNode(true);
+                                clone.querySelector('.product-search-input').value = '';
+                                clone.querySelector('.product-id-input').value = '';
+                                if (clone.querySelector('.barcode-input')) clone.querySelector('.barcode-input').value = '';
+                                if (clone.querySelector('.price-unit-input')) clone.querySelector('.price-unit-input').value = '';
+                                clone.querySelector('.quantity-input').value = '1';
+                                container.appendChild(clone);
+                                bindProductSelectEvent(clone);
+                                calculateGrandTotal();
+                            }
+                        });
+                    }
+
+                    calculateGrandTotal();
+                });
+            </script>
+        </t>
+    </template>
+</odoo>

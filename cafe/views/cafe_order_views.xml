@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cafe Order Form View -->
+    <record id="view_cafe_order_form" model="ir.ui.view">
+        <field name="name">cafe.order.form</field>
+        <field name="model">cafe.order</field>
+        <field name="arch" type="xml">
+            <form string="Cafe Order">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="customer_name"/>
+                            <field name="mobile_phone"/>
+                            <field name="table_number"/>
+                        </group>
+                        <group>
+                            <field name="order_time" readonly="1"/>
+                            <field name="currency_id" groups="base.group_multi_currency" readonly="1"/>
+                            <field name="is_synced" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Menu Pesanan">
+                            <field name="line_ids">
+                                <tree editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="barcode"/>
+                                    <field name="price_unit"/>
+                                    <field name="quantity"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="price_subtotal"/>
+                                    <field name="is_synced" readonly="1"/>
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Cafe Order Tree View -->
+    <record id="view_cafe_order_tree" model="ir.ui.view">
+        <field name="name">cafe.order.tree</field>
+        <field name="model">cafe.order</field>
+        <field name="arch" type="xml">
+            <tree string="Cafe Orders">
+                <field name="name"/>
+                <field name="order_time"/>
+                <field name="customer_name"/>
+                <field name="mobile_phone"/>
+                <field name="table_number"/>
+                <field name="amount_total"/>
+                <field name="is_synced"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Cafe Order Search View -->
+    <record id="view_cafe_order_search" model="ir.ui.view">
+        <field name="name">cafe.order.search</field>
+        <field name="model">cafe.order</field>
+        <field name="arch" type="xml">
+            <search string="Search Cafe Orders">
+                <field name="name"/>
+                <field name="customer_name"/>
+                <field name="table_number"/>
+                <field name="mobile_phone"/>
+                <group expand="0" string="Group By">
+                    <filter string="Table Number" name="group_by_table" context="{'group_by': 'table_number'}"/>
+                    <filter string="Order Time" name="group_by_order_time" context="{'group_by': 'order_time'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Cafe Order Line Tree View -->
+    <record id="view_cafe_order_line_tree" model="ir.ui.view">
+        <field name="name">cafe.order.line.tree</field>
+        <field name="model">cafe.order.line</field>
+        <field name="arch" type="xml">
+            <tree string="Check Order List" create="false" edit="false" delete="false">
+                <header>
+                    <button name="sync_to_spreadsheet" type="object" string="Sync to Spreadsheet" class="btn-primary"/>
+                </header>
+                <field name="order_time"/>
+                <field name="customer_name"/>
+                <field name="mobile_phone"/>
+                <field name="table_number"/>
+                <field name="product_id"/>
+                <field name="barcode"/>
+                <field name="is_synced"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action for Cafe Order Line (Check Order List) -->
+    <record id="action_cafe_order_line" model="ir.actions.act_window">
+        <field name="name">Check Order List</field>
+        <field name="res_model">cafe.order.line</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <!-- Action for Cafe Order -->
+    <record id="action_cafe_order" model="ir.actions.act_window">
+        <field name="name">Cafe Orders</field>
+        <field name="res_model">cafe.order</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat pesanan Cafe pertama Anda!
+            </p>
+        </field>
+    </record>
+
+    <!-- Action for Product / Menu Cafe -->
+    <record id="action_cafe_product_template" model="ir.actions.act_window">
+        <field name="name">Produk / Menu</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('sale_ok', '=', True)]</field>
+        <field name="context">{'default_sale_ok': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Tambahkan Produk / Menu Cafe baru!
+            </p>
+        </field>
+    </record>
+
+    <!-- Top-level Menu Item: Cafe -->
+    <menuitem id="menu_cafe_root"
+              name="Cafe"
+              sequence="10"
+              web_icon="cafe,static/description/icon.png"/>
+
+    <!-- Sub-menu Category: Orders -->
+    <menuitem id="menu_cafe_orders_category"
+              name="Orders"
+              parent="menu_cafe_root"
+              sequence="10"/>
+
+    <!-- Sub-menu Item for Check Order List -->
+    <menuitem id="menu_cafe_order_line"
+              name="Check Order List"
+              parent="menu_cafe_orders_category"
+              action="action_cafe_order_line"
+              sequence="5"/>
+
+    <!-- Sub-menu Item for Orders -->
+    <menuitem id="menu_cafe_order"
+              name="Orders"
+              parent="menu_cafe_orders_category"
+              action="action_cafe_order"
+              sequence="10"/>
+
+    <!-- Sub-menu Item for Produk / Menu -->
+    <menuitem id="menu_cafe_product"
+              name="Produk / Menu"
+              parent="menu_cafe_root"
+              action="action_cafe_product_template"
+              sequence="20"/>
+</odoo>

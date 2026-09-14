@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_cafe" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.cafe</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="Cafe" id="cafe" string="Cafe Management" data-key="cafe">
+                    <h2>Google Spreadsheet Sync Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="spreadsheet_sync_active"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="spreadsheet_sync_active" string="Enable Google Spreadsheet Synchronization"/>
+                                <div class="text-muted">
+                                    Sync orders automatically or manually to Google Spreadsheet.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box" attrs="{'invisible': [('spreadsheet_sync_active', '=', False)]}">
+                            <div class="o_setting_right_pane">
+                                <label for="spreadsheet_id" string="Spreadsheet ID or URL"/>
+                                <div class="text-muted">
+                                    Enter the Google Spreadsheet ID or full share URL.
+                                </div>
+                                <field name="spreadsheet_id"/>
+                                <br/>
+                                <label for="spreadsheet_credentials" string="Service Account Credentials JSON"/>
+                                <div class="text-muted">
+                                    Paste Google Cloud Service Account JSON contents.
+                                </div>
+                                <field name="spreadsheet_credentials"/>
+                            </div>
+                        </div>
+                    </div>
+                    <h2>Direct Domain to a Specific Database</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="direct_domain_active"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="direct_database_name" string="Database"/>
+                                <field name="direct_database_name"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="direct_domain_url" string="Direct Domain URL"/>
+                                <field name="direct_domain_url"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_cafe_config_settings" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'cafe'}</field>
+    </record>
+
+    <menuitem id="menu_cafe_settings"
+              name="Settings"
+              parent="menu_cafe_root"
+              action="action_cafe_config_settings"
+              sequence="100"/>
+</odoo>

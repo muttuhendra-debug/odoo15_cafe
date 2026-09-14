@@ -121,20 +121,6 @@
         </field>
     </record>
 
-    <!-- Action for Product / Menu Cafe -->
-    <record id="action_cafe_product_template" model="ir.actions.act_window">
-        <field name="name">Produk / Menu</field>
-        <field name="res_model">product.template</field>
-        <field name="view_mode">kanban,tree,form</field>
-        <field name="domain">[('sale_ok', '=', True)]</field>
-        <field name="context">{'default_sale_ok': True}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Tambahkan Produk / Menu Cafe baru!
-            </p>
-        </field>
-    </record>
-
     <!-- Top-level Menu Item: Cafe -->
     <menuitem id="menu_cafe_root"
               name="Cafe"
@@ -160,11 +146,4 @@
               parent="menu_cafe_orders_category"
               action="action_cafe_order"
               sequence="10"/>
-
-    <!-- Sub-menu Item for Produk / Menu -->
-    <menuitem id="menu_cafe_product"
-              name="Produk / Menu"
-              parent="menu_cafe_root"
-              action="action_cafe_product_template"
-              sequence="20"/>
 </odoo>

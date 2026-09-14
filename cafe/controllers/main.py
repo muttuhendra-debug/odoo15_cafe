@@ -7,9 +7,22 @@ from odoo.http import request
 
 class CafeWebController(http.Controller):
 
+    def _get_available_products(self):
+        ICP = request.env['ir.config_parameter'].sudo()
+        category_active = ICP.get_param('cafe.product_category_active', default='False') == 'True'
+        domain = [('sale_ok', '=', True)]
+
+        if category_active:
+            category_ids_str = ICP.get_param('cafe.product_category_ids', default='')
+            category_ids = [int(x) for x in category_ids_str.split(',') if x.strip().isdigit()]
+            if category_ids:
+                domain.append(('categ_id', 'child_of', category_ids))
+
+        return request.env['product.product'].sudo().search(domain)
+
     @http.route(['/cafe/order'], type='http', auth='public', website=True, sitemap=True)
     def cafe_order_form(self, **kw):
-        products = request.env['product.product'].sudo().search([('sale_ok', '=', True)])
+        products = self._get_available_products()
         values = {
             'products': products,
             'submitted': False,
@@ -49,7 +62,7 @@ class CafeWebController(http.Controller):
                 valid_lines.append((int(p_id), bc, price_unit, qty))
 
         if not customer_name or not table_number or not valid_lines:
-            products = request.env['product.product'].sudo().search([('sale_ok', '=', True)])
+            products = self._get_available_products()
             return request.render('cafe.cafe_order_form_template', {
                 'products': products,
                 'submitted': False,
@@ -77,7 +90,7 @@ class CafeWebController(http.Controller):
             'line_ids': order_line_vals
         })
 
-        products = request.env['product.product'].sudo().search([('sale_ok', '=', True)])
+        products = self._get_available_products()
         return request.render('cafe.cafe_order_form_template', {
             'products': products,
             'submitted': True,

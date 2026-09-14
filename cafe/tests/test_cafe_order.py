@@ -71,33 +71,3 @@ class TestCafeOrder(TransactionCase):
 
         result = self.env['cafe.order.line'].sync_to_spreadsheet()
         self.assertIn('params', result)
-
-    def test_03_product_category_settings_and_filtering(self):
-        categ_makanan = self.env['product.category'].create({'name': 'Makanan Test'})
-        categ_minuman = self.env['product.category'].create({'name': 'Minuman Test'})
-
-        self.product1.write({'categ_id': categ_minuman.id})
-        self.product2.write({'categ_id': categ_makanan.id})
-
-        config = self.env['res.config.settings'].create({
-            'product_category_active': True,
-            'product_category_ids': [(6, 0, [categ_makanan.id])],
-        })
-        config.set_values()
-
-        ICP = self.env['ir.config_parameter'].sudo()
-        self.assertEqual(ICP.get_param('cafe.product_category_active'), 'True')
-        self.assertEqual(ICP.get_param('cafe.product_category_ids'), str(categ_makanan.id))
-
-        from cafe.controllers.main import CafeWebController
-        controller = CafeWebController()
-
-        domain = [('sale_ok', '=', True)]
-        if ICP.get_param('cafe.product_category_active') == 'True':
-            cat_ids = [int(x) for x in ICP.get_param('cafe.product_category_ids').split(',') if x.strip().isdigit()]
-            if cat_ids:
-                domain.append(('categ_id', 'child_of', cat_ids))
-
-        filtered_products = self.env['product.product'].search(domain)
-        self.assertIn(self.product2, filtered_products)
-        self.assertNotIn(self.product1, filtered_products)

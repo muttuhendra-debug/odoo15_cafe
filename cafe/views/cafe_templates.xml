@@ -70,9 +70,9 @@
                                     <!-- Shared Datalist for Product Search -->
                                     <datalist id="productList">
                                         <t t-foreach="products" t-as="p">
-                                            <option t-att-value="('[' + p.barcode + '] ' + p.display_name) if p.barcode else p.display_name"
+                                            <option t-att-value="p.name"
                                                     t-att-data-id="p.id"
-                                                    t-att-data-name="p.display_name"
+                                                    t-att-data-name="p.name"
                                                     t-att-data-barcode="p.barcode or ''"
                                                     t-att-data-price="p.lst_price"/>
                                         </t>
@@ -173,6 +173,10 @@
                         }
 
                         if (matchedOption) {
+                            var prodName = matchedOption.getAttribute('data-name') || matchedOption.value;
+                            if (searchInput.value !== prodName) {
+                                searchInput.value = prodName;
+                            }
                             hiddenIdInput.value = matchedOption.getAttribute('data-id') || '';
                             if (barcodeInput) barcodeInput.value = matchedOption.getAttribute('data-barcode') || '';
                             if (priceInput) priceInput.value = matchedOption.getAttribute('data-price') || '0';

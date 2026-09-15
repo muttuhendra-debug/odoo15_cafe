@@ -86,7 +86,8 @@
                                                 </div>
                                                 <div class="col-6 col-md-2 mb-2">
                                                     <label class="form-label small font-weight-bold">Harga Jual</label>
-                                                    <input type="number" step="any" min="0" class="form-control price-unit-input" name="price_unit[]" placeholder="0" readonly="readonly"/>
+                                                    <input type="text" class="form-control price-unit-display" placeholder="Rp. 0" readonly="readonly"/>
+                                                    <input type="hidden" class="price-unit-input" name="price_unit[]"/>
                                                 </div>
                                                 <div class="col-4 col-md-2 mb-2">
                                                     <label class="form-label small font-weight-bold">Qty</label>
@@ -123,6 +124,11 @@
                     var btnAdd = document.getElementById('btnAddProduct');
                     var datalist = document.getElementById('productList');
 
+                    function formatCurrency(amount) {
+                        var num = parseFloat(amount) || 0;
+                        return 'Rp. ' + Math.round(num).toLocaleString('en-US');
+                    }
+
                     function calculateGrandTotal() {
                         var grandTotalDisplay = document.getElementById('grandTotalDisplay');
                         if (!grandTotalDisplay || !container) return;
@@ -149,6 +155,7 @@
                         var hiddenIdInput = element.querySelector('.product-id-input');
                         var barcodeInput = element.querySelector('.barcode-input');
                         var priceInput = element.querySelector('.price-unit-input');
+                        var priceDisplay = element.querySelector('.price-unit-display');
 
                         if (!searchInput || !hiddenIdInput || !datalist) return;
 
@@ -157,6 +164,7 @@
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
+                            if (priceDisplay) priceDisplay.value = '';
                             if (displayDiv) {
                                 displayDiv.style.display = 'none';
                                 displayDiv.textContent = '';
@@ -186,9 +194,11 @@
 
                         if (matchedOpt) {
                             var prodName = matchedOpt.getAttribute('data-name') || matchedOpt.value;
+                            var rawPrice = parseFloat(matchedOpt.getAttribute('data-price') || '0') || 0;
                             hiddenIdInput.value = matchedOpt.getAttribute('data-id') || '';
                             if (barcodeInput) barcodeInput.value = matchedOpt.getAttribute('data-barcode') || '';
-                            if (priceInput) priceInput.value = matchedOpt.getAttribute('data-price') || '0';
+                            if (priceInput) priceInput.value = rawPrice;
+                            if (priceDisplay) priceDisplay.value = formatCurrency(rawPrice);
                             searchInput.value = prodName;
 
                             if (displayDiv) {
@@ -201,6 +211,7 @@
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
+                            if (priceDisplay) priceDisplay.value = '';
                             if (displayDiv) {
                                 displayDiv.style.display = 'none';
                                 displayDiv.textContent = '';
@@ -285,6 +296,7 @@
                                 clone.querySelector('.product-id-input').value = '';
                                 if (clone.querySelector('.barcode-input')) clone.querySelector('.barcode-input').value = '';
                                 if (clone.querySelector('.price-unit-input')) clone.querySelector('.price-unit-input').value = '';
+                                if (clone.querySelector('.price-unit-display')) clone.querySelector('.price-unit-display').value = '';
                                 clone.querySelector('.quantity-input').value = '1';
                                 container.appendChild(clone);
                                 bindProductSelectEvent(clone);

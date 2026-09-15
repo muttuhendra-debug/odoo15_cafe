@@ -106,7 +106,7 @@
                                                 + Tambah Menu
                                             </button>
                                             <button type="button" class="btn btn-outline-info btn-sm font-weight-bold mb-1" id="btnShowSummary">
-                                                Hitung / Rincian Pesanan
+                                                <i class="fa fa-list-alt mr-1 me-1"></i> Rincian Pesanan
                                             </button>
                                         </div>
                                         <div class="text-right text-end font-weight-bold mb-2">

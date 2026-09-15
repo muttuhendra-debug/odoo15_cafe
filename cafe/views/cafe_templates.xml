@@ -79,7 +79,8 @@
                                             <div class="row g-2">
                                                 <div class="col-12 col-md-7 mb-2">
                                                     <label class="form-label small font-weight-bold">Cari / Pilih Produk <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required" style="text-overflow: ellipsis;"/>
+                                                    <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required"/>
+                                                    <div class="selected-product-display font-weight-bold p-2 border rounded bg-white text-wrap" style="display: none; cursor: pointer; word-break: break-word;" title="Klik untuk mengubah produk"></div>
                                                     <input type="hidden" class="product-id-input" name="product_id[]" required="required"/>
                                                     <input type="hidden" class="barcode-input" name="barcode[]"/>
                                                 </div>
@@ -144,6 +145,7 @@
 
                     function updateProductData(element) {
                         var searchInput = element.querySelector('.product-search-input');
+                        var displayDiv = element.querySelector('.selected-product-display');
                         var hiddenIdInput = element.querySelector('.product-id-input');
                         var barcodeInput = element.querySelector('.barcode-input');
                         var priceInput = element.querySelector('.price-unit-input');
@@ -155,7 +157,12 @@
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
-                            searchInput.title = '';
+                            if (displayDiv) {
+                                displayDiv.style.display = 'none';
+                                displayDiv.textContent = '';
+                            }
+                            searchInput.style.display = 'block';
+                            searchInput.required = true;
                             calculateGrandTotal();
                             return;
                         }
@@ -183,12 +190,23 @@
                             if (barcodeInput) barcodeInput.value = matchedOpt.getAttribute('data-barcode') || '';
                             if (priceInput) priceInput.value = matchedOpt.getAttribute('data-price') || '0';
                             searchInput.value = prodName;
-                            searchInput.title = prodName;
+
+                            if (displayDiv) {
+                                displayDiv.textContent = prodName;
+                                displayDiv.style.display = 'block';
+                                searchInput.style.display = 'none';
+                                searchInput.required = false;
+                            }
                         } else {
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
-                            searchInput.title = '';
+                            if (displayDiv) {
+                                displayDiv.style.display = 'none';
+                                displayDiv.textContent = '';
+                            }
+                            searchInput.style.display = 'block';
+                            searchInput.required = true;
                         }
 
                         calculateGrandTotal();
@@ -196,6 +214,18 @@
 
                     function bindProductSelectEvent(element) {
                         var searchInput = element.querySelector('.product-search-input');
+                        var displayDiv = element.querySelector('.selected-product-display');
+
+                        if (displayDiv &amp;&amp; searchInput) {
+                            displayDiv.addEventListener('click', function () {
+                                displayDiv.style.display = 'none';
+                                searchInput.style.display = 'block';
+                                searchInput.required = true;
+                                searchInput.focus();
+                                searchInput.select();
+                            });
+                        }
+
                         if (searchInput) {
                             searchInput.addEventListener('input', function () {
                                 updateProductData(element);
@@ -241,7 +271,17 @@
                             var firstLine = container.querySelector('.product-line-item');
                             if (firstLine) {
                                 var clone = firstLine.cloneNode(true);
-                                clone.querySelector('.product-search-input').value = '';
+                                var cloneSearchInput = clone.querySelector('.product-search-input');
+                                var cloneDisplayDiv = clone.querySelector('.selected-product-display');
+                                if (cloneSearchInput) {
+                                    cloneSearchInput.value = '';
+                                    cloneSearchInput.style.display = 'block';
+                                    cloneSearchInput.required = true;
+                                }
+                                if (cloneDisplayDiv) {
+                                    cloneDisplayDiv.style.display = 'none';
+                                    cloneDisplayDiv.textContent = '';
+                                }
                                 clone.querySelector('.product-id-input').value = '';
                                 if (clone.querySelector('.barcode-input')) clone.querySelector('.barcode-input').value = '';
                                 if (clone.querySelector('.price-unit-input')) clone.querySelector('.price-unit-input').value = '';

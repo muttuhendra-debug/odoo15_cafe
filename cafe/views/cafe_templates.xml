@@ -70,7 +70,7 @@
                                     <!-- Shared Datalist for Product Search -->
                                     <datalist id="productList">
                                         <t t-foreach="products" t-as="p">
-                                            <option t-att-value="p.display_name" t-att-data-id="p.id" t-att-data-barcode="p.barcode or ''" t-att-data-price="p.lst_price"/>
+                                            <option t-att-value="p.name" t-att-data-id="p.id" t-att-data-name="p.name" t-att-data-barcode="p.barcode or ''" t-att-data-code="p.default_code or ''" t-att-data-display="p.display_name" t-att-data-price="p.lst_price"/>
                                         </t>
                                     </datalist>
 
@@ -150,25 +150,45 @@
 
                         if (!searchInput || !hiddenIdInput || !datalist) return;
 
-                        var val = searchInput.value;
+                        var val = searchInput.value.trim().toLowerCase();
+                        if (!val) {
+                            hiddenIdInput.value = '';
+                            if (barcodeInput) barcodeInput.value = '';
+                            if (priceInput) priceInput.value = '';
+                            searchInput.title = '';
+                            calculateGrandTotal();
+                            return;
+                        }
+
                         var options = datalist.options;
-                        var matched = false;
+                        var matchedOpt = null;
 
                         for (var i = 0; i &lt; options.length; i++) {
                             var opt = options[i];
-                            if (opt.value === val) {
-                                hiddenIdInput.value = opt.getAttribute('data-id') || '';
-                                if (barcodeInput) barcodeInput.value = opt.getAttribute('data-barcode') || '';
-                                if (priceInput) priceInput.value = opt.getAttribute('data-price') || '0';
-                                matched = true;
+                            var optVal = (opt.value || '').toLowerCase();
+                            var optName = (opt.getAttribute('data-name') || '').toLowerCase();
+                            var optBarcode = (opt.getAttribute('data-barcode') || '').toLowerCase();
+                            var optCode = (opt.getAttribute('data-code') || '').toLowerCase();
+                            var optDisplay = (opt.getAttribute('data-display') || '').toLowerCase();
+
+                            if (val === optVal || val === optName || (optBarcode &amp;&amp; val === optBarcode) || (optCode &amp;&amp; val === optCode) || val === optDisplay) {
+                                matchedOpt = opt;
                                 break;
                             }
                         }
 
-                        if (!matched) {
+                        if (matchedOpt) {
+                            var prodName = matchedOpt.getAttribute('data-name') || matchedOpt.value;
+                            hiddenIdInput.value = matchedOpt.getAttribute('data-id') || '';
+                            if (barcodeInput) barcodeInput.value = matchedOpt.getAttribute('data-barcode') || '';
+                            if (priceInput) priceInput.value = matchedOpt.getAttribute('data-price') || '0';
+                            searchInput.value = prodName;
+                            searchInput.title = prodName;
+                        } else {
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
+                            searchInput.title = '';
                         }
 
                         calculateGrandTotal();

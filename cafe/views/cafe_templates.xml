@@ -70,26 +70,28 @@
                                     <!-- Shared Datalist for Product Search -->
                                     <datalist id="productList">
                                         <t t-foreach="products" t-as="p">
-                                            <option t-att-value="p.display_name" t-att-data-id="p.id" t-att-data-barcode="p.barcode or ''" t-att-data-price="p.lst_price"/>
+                                            <option t-att-value="p.name" t-att-data-id="p.id" t-att-data-name="p.name" t-att-data-barcode="p.barcode or ''" t-att-data-code="p.default_code or ''" t-att-data-display="p.display_name" t-att-data-price="p.lst_price"/>
                                         </t>
                                     </datalist>
 
                                     <div id="productLinesContainer">
                                         <div class="card mb-3 border-light bg-light product-line-item p-3 rounded">
                                             <div class="row g-2">
-                                                <div class="col-12 col-md-5 mb-2">
+                                                <div class="col-12 col-md-6 mb-2">
                                                     <label class="form-label small font-weight-bold">Cari / Pilih Produk <span class="text-danger">*</span></label>
                                                     <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required"/>
+                                                    <div class="selected-product-display font-weight-bold p-2 border rounded bg-white text-wrap" style="display: none; cursor: pointer; word-break: break-word;" title="Klik untuk mengubah produk"></div>
                                                     <input type="hidden" class="product-id-input" name="product_id[]" required="required"/>
                                                     <input type="hidden" class="barcode-input" name="barcode[]"/>
                                                 </div>
-                                                <div class="col-6 col-md-4 mb-2">
+                                                <div class="col-6 col-md-3 mb-2">
                                                     <label class="form-label small font-weight-bold">Harga Jual</label>
-                                                    <input type="number" step="any" min="0" class="form-control price-unit-input" name="price_unit[]" placeholder="0" readonly="readonly"/>
+                                                    <input type="text" class="form-control price-unit-display px-2" placeholder="Rp. 0" readonly="readonly" style="font-size: 0.95rem;"/>
+                                                    <input type="hidden" class="price-unit-input" name="price_unit[]"/>
                                                 </div>
                                                 <div class="col-4 col-md-2 mb-2">
                                                     <label class="form-label small font-weight-bold">Qty</label>
-                                                    <input type="number" step="1" min="1" class="form-control quantity-input" name="quantity[]" value="1" required="required"/>
+                                                    <input type="number" step="1" min="1" class="form-control quantity-input px-2" name="quantity[]" value="1" required="required"/>
                                                 </div>
                                                 <div class="col-2 col-md-1 mb-2 d-flex align-items-end justify-content-end">
                                                     <button type="button" class="btn btn-outline-danger btn-remove-line" title="Hapus Menu">&amp;times;</button>
@@ -98,11 +100,16 @@
                                         </div>
                                     </div>
 
-                                    <div class="d-flex justify-content-between align-items-center mb-4">
-                                        <button type="button" class="btn btn-outline-success btn-sm font-weight-bold" id="btnAddProduct">
-                                            + Tambah Menu Lain
-                                        </button>
-                                        <div class="text-right text-end font-weight-bold">
+                                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap g-2">
+                                        <div class="mb-2">
+                                            <button type="button" class="btn btn-outline-success btn-sm font-weight-bold mr-1 me-1 mb-1" id="btnAddProduct">
+                                                + Tambah Menu
+                                            </button>
+                                            <button type="button" class="btn btn-outline-info btn-sm font-weight-bold mb-1" id="btnShowSummary">
+                                                <i class="fa fa-list-alt mr-1 me-1"></i> Rincian Pesanan
+                                            </button>
+                                        </div>
+                                        <div class="text-right text-end font-weight-bold mb-2">
                                             <span class="h6 mb-0 font-weight-bold">Total Harga: </span>
                                             <span id="grandTotalDisplay" class="h5 mb-0 text-primary font-weight-bold">Rp 0</span>
                                         </div>
@@ -110,6 +117,43 @@
 
                                     <button type="submit" class="btn btn-lg btn-block w-100 rounded-pill shadow-sm text-white" style="background-color: #f05c24 !important; border-color: #f05c24 !important;">Kirim Order</button>
                                 </form>
+
+                                <!-- Modal Order Summary -->
+                                <div class="modal fade" id="orderSummaryModal" tabindex="-1" role="dialog" aria-labelledby="orderSummaryModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header text-white" style="background-color: #f05c24 !important;">
+                                                <h5 class="modal-title font-weight-bold text-white" id="orderSummaryModalLabel">Rincian &amp; Jumlah Menu Pesanan</h5>
+                                                <button type="button" class="close text-white border-0 bg-transparent h4 mb-0" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close">&amp;times;</button>
+                                            </div>
+                                            <div class="modal-body p-4">
+                                                <div class="card mb-3 border-light bg-light p-3 rounded">
+                                                    <p class="mb-1"><strong>Nama Pelanggan:</strong> <span id="summaryCustomerName">-</span></p>
+                                                    <p class="mb-0"><strong>Nomor Meja:</strong> <span id="summaryTableNumber">-</span></p>
+                                                </div>
+                                                <h6 class="font-weight-bold mb-2">Daftar Menu Pesanan:</h6>
+                                                <div id="summaryItemsList" class="list-group mb-3"></div>
+                                                <div class="border-top pt-3">
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Total Jenis Menu:</span>
+                                                        <strong id="summaryTotalTypes">0 menu</strong>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between mb-1">
+                                                        <span>Total Jumlah Qty:</span>
+                                                        <strong id="summaryTotalQty">0 porsi</strong>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between h5 font-weight-bold text-primary mt-2 pt-2 border-top">
+                                                        <span>Total Harga:</span>
+                                                        <span id="summaryGrandTotal">Rp 0</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary rounded-pill" data-dismiss="modal" data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </t>
                         </div>
                     </div>
@@ -121,6 +165,11 @@
                     var container = document.getElementById('productLinesContainer');
                     var btnAdd = document.getElementById('btnAddProduct');
                     var datalist = document.getElementById('productList');
+
+                    function formatCurrency(amount) {
+                        var num = parseFloat(amount) || 0;
+                        return 'Rp. ' + Math.round(num).toLocaleString('en-US');
+                    }
 
                     function calculateGrandTotal() {
                         var grandTotalDisplay = document.getElementById('grandTotalDisplay');
@@ -144,31 +193,82 @@
 
                     function updateProductData(element) {
                         var searchInput = element.querySelector('.product-search-input');
+                        var displayDiv = element.querySelector('.selected-product-display');
                         var hiddenIdInput = element.querySelector('.product-id-input');
                         var barcodeInput = element.querySelector('.barcode-input');
                         var priceInput = element.querySelector('.price-unit-input');
+                        var priceDisplay = element.querySelector('.price-unit-display');
 
                         if (!searchInput || !hiddenIdInput || !datalist) return;
 
-                        var val = searchInput.value;
+                        var val = searchInput.value.trim().toLowerCase();
+                        if (!val) {
+                            hiddenIdInput.value = '';
+                            if (barcodeInput) barcodeInput.value = '';
+                            if (priceInput) priceInput.value = '';
+                            if (priceDisplay) {
+                                priceDisplay.value = '';
+                                priceDisplay.title = '';
+                            }
+                            if (displayDiv) {
+                                displayDiv.style.display = 'none';
+                                displayDiv.textContent = '';
+                            }
+                            searchInput.style.display = 'block';
+                            searchInput.required = true;
+                            calculateGrandTotal();
+                            return;
+                        }
+
                         var options = datalist.options;
-                        var matched = false;
+                        var matchedOpt = null;
 
                         for (var i = 0; i &lt; options.length; i++) {
                             var opt = options[i];
-                            if (opt.value === val) {
-                                hiddenIdInput.value = opt.getAttribute('data-id') || '';
-                                if (barcodeInput) barcodeInput.value = opt.getAttribute('data-barcode') || '';
-                                if (priceInput) priceInput.value = opt.getAttribute('data-price') || '0';
-                                matched = true;
+                            var optVal = (opt.value || '').toLowerCase();
+                            var optName = (opt.getAttribute('data-name') || '').toLowerCase();
+                            var optBarcode = (opt.getAttribute('data-barcode') || '').toLowerCase();
+                            var optCode = (opt.getAttribute('data-code') || '').toLowerCase();
+                            var optDisplay = (opt.getAttribute('data-display') || '').toLowerCase();
+
+                            if (val === optVal || val === optName || (optBarcode &amp;&amp; val === optBarcode) || (optCode &amp;&amp; val === optCode) || val === optDisplay) {
+                                matchedOpt = opt;
                                 break;
                             }
                         }
 
-                        if (!matched) {
+                        if (matchedOpt) {
+                            var prodName = matchedOpt.getAttribute('data-name') || matchedOpt.value;
+                            var rawPrice = parseFloat(matchedOpt.getAttribute('data-price') || '0') || 0;
+                            hiddenIdInput.value = matchedOpt.getAttribute('data-id') || '';
+                            if (barcodeInput) barcodeInput.value = matchedOpt.getAttribute('data-barcode') || '';
+                            if (priceInput) priceInput.value = rawPrice;
+                            if (priceDisplay) {
+                                priceDisplay.value = formatCurrency(rawPrice);
+                                priceDisplay.title = formatCurrency(rawPrice);
+                            }
+                            searchInput.value = prodName;
+
+                            if (displayDiv) {
+                                displayDiv.textContent = prodName;
+                                displayDiv.style.display = 'block';
+                                searchInput.style.display = 'none';
+                                searchInput.required = false;
+                            }
+                        } else {
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';
+                            if (priceDisplay) {
+                                priceDisplay.value = '';
+                                priceDisplay.title = '';
+                            }
+                            if (displayDiv) {
+                                displayDiv.style.display = 'none';
+                                displayDiv.textContent = '';
+                            }
+                            searchInput.style.display = 'block';
+                            searchInput.required = true;
                         }
 
                         calculateGrandTotal();
@@ -176,6 +276,18 @@
 
                     function bindProductSelectEvent(element) {
                         var searchInput = element.querySelector('.product-search-input');
+                        var displayDiv = element.querySelector('.selected-product-display');
+
+                        if (displayDiv &amp;&amp; searchInput) {
+                            displayDiv.addEventListener('click', function () {
+                                displayDiv.style.display = 'none';
+                                searchInput.style.display = 'block';
+                                searchInput.required = true;
+                                searchInput.focus();
+                                searchInput.select();
+                            });
+                        }
+
                         if (searchInput) {
                             searchInput.addEventListener('input', function () {
                                 updateProductData(element);
@@ -221,16 +333,103 @@
                             var firstLine = container.querySelector('.product-line-item');
                             if (firstLine) {
                                 var clone = firstLine.cloneNode(true);
-                                clone.querySelector('.product-search-input').value = '';
+                                var cloneSearchInput = clone.querySelector('.product-search-input');
+                                var cloneDisplayDiv = clone.querySelector('.selected-product-display');
+                                if (cloneSearchInput) {
+                                    cloneSearchInput.value = '';
+                                    cloneSearchInput.style.display = 'block';
+                                    cloneSearchInput.required = true;
+                                }
+                                if (cloneDisplayDiv) {
+                                    cloneDisplayDiv.style.display = 'none';
+                                    cloneDisplayDiv.textContent = '';
+                                }
                                 clone.querySelector('.product-id-input').value = '';
                                 if (clone.querySelector('.barcode-input')) clone.querySelector('.barcode-input').value = '';
                                 if (clone.querySelector('.price-unit-input')) clone.querySelector('.price-unit-input').value = '';
+                                if (clone.querySelector('.price-unit-display')) clone.querySelector('.price-unit-display').value = '';
                                 clone.querySelector('.quantity-input').value = '1';
                                 container.appendChild(clone);
                                 bindProductSelectEvent(clone);
                                 calculateGrandTotal();
                             }
                         });
+                    }
+
+                    var btnShowSummary = document.getElementById('btnShowSummary');
+                    var orderSummaryModal = document.getElementById('orderSummaryModal');
+
+                    function populateAndShowSummary() {
+                        var customerNameInput = document.getElementById('customer_name');
+                        var tableNumberInput = document.getElementById('table_number');
+
+                        var summaryCustomerName = document.getElementById('summaryCustomerName');
+                        var summaryTableNumber = document.getElementById('summaryTableNumber');
+                        var summaryItemsList = document.getElementById('summaryItemsList');
+                        var summaryTotalTypes = document.getElementById('summaryTotalTypes');
+                        var summaryTotalQty = document.getElementById('summaryTotalQty');
+                        var summaryGrandTotal = document.getElementById('summaryGrandTotal');
+
+                        if (summaryCustomerName) summaryCustomerName.textContent = (customerNameInput &amp;&amp; customerNameInput.value.trim()) ? customerNameInput.value.trim() : '-';
+                        if (summaryTableNumber) summaryTableNumber.textContent = (tableNumberInput &amp;&amp; tableNumberInput.value.trim()) ? tableNumberInput.value.trim() : '-';
+
+                        if (!container || !summaryItemsList) return;
+
+                        summaryItemsList.innerHTML = '';
+                        var lines = container.querySelectorAll('.product-line-item');
+
+                        var totalTypes = 0;
+                        var totalQty = 0;
+                        var grandTotal = 0;
+
+                        lines.forEach(function (line, index) {
+                            var searchInput = line.querySelector('.product-search-input');
+                            var priceInput = line.querySelector('.price-unit-input');
+                            var qtyInput = line.querySelector('.quantity-input');
+                            var hiddenIdInput = line.querySelector('.product-id-input');
+
+                            var prodName = (searchInput ? searchInput.value.trim() : '') || 'Menu ' + (index + 1);
+                            var price = parseFloat(priceInput ? priceInput.value : 0) || 0;
+                            var qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
+                            var subtotal = price * qty;
+
+                            if (hiddenIdInput &amp;&amp; hiddenIdInput.value) {
+                                totalTypes++;
+                                totalQty += qty;
+                                grandTotal += subtotal;
+
+                                var itemDiv = document.createElement('div');
+                                itemDiv.className = 'list-group-item d-flex justify-content-between align-items-center p-2';
+                                itemDiv.innerHTML = '<div class="text-truncate pr-2 me-2" style="max-width: 65%;">' +
+                                    '<strong>' + prodName + '</strong><br/>' +
+                                    '<small class="text-muted">' + formatCurrency(price) + ' x ' + qty + '</small>' +
+                                    '</div>' +
+                                    '<span class="font-weight-bold text-primary">' + formatCurrency(subtotal) + '</span>';
+                                summaryItemsList.appendChild(itemDiv);
+                            }
+                        });
+
+                        if (totalTypes === 0) {
+                            summaryItemsList.innerHTML = '<div class="list-group-item text-muted text-center italic">Belum ada menu yang dipilih.</div>';
+                        }
+
+                        if (summaryTotalTypes) summaryTotalTypes.textContent = totalTypes + ' menu';
+                        if (summaryTotalQty) summaryTotalQty.textContent = totalQty + ' porsi';
+                        if (summaryGrandTotal) summaryGrandTotal.textContent = formatCurrency(grandTotal);
+
+                        if (typeof $ !== 'undefined' &amp;&amp; $.fn &amp;&amp; $.fn.modal) {
+                            $('#orderSummaryModal').modal('show');
+                        } else if (typeof bootstrap !== 'undefined' &amp;&amp; bootstrap.Modal) {
+                            var modalObj = bootstrap.Modal.getInstance(orderSummaryModal) || new bootstrap.Modal(orderSummaryModal);
+                            modalObj.show();
+                        } else if (orderSummaryModal) {
+                            orderSummaryModal.classList.add('show');
+                            orderSummaryModal.style.display = 'block';
+                        }
+                    }
+
+                    if (btnShowSummary) {
+                        btnShowSummary.addEventListener('click', populateAndShowSummary);
                     }
 
                     calculateGrandTotal();

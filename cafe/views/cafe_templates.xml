@@ -70,24 +70,20 @@
                                     <!-- Shared Datalist for Product Search -->
                                     <datalist id="productList">
                                         <t t-foreach="products" t-as="p">
-                                            <option t-att-value="p.name"
-                                                    t-att-data-id="p.id"
-                                                    t-att-data-name="p.name"
-                                                    t-att-data-barcode="p.barcode or ''"
-                                                    t-att-data-price="p.lst_price"/>
+                                            <option t-att-value="p.display_name" t-att-data-id="p.id" t-att-data-barcode="p.barcode or ''" t-att-data-price="p.lst_price"/>
                                         </t>
                                     </datalist>
 
                                     <div id="productLinesContainer">
                                         <div class="card mb-3 border-light bg-light product-line-item p-3 rounded">
                                             <div class="row g-2">
-                                                <div class="col-12 col-md-5 mb-2">
+                                                <div class="col-12 col-md-7 mb-2">
                                                     <label class="form-label small font-weight-bold">Cari / Pilih Produk <span class="text-danger">*</span></label>
-                                                    <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required"/>
+                                                    <input type="text" class="form-control product-search-input" list="productList" placeholder="Ketik nama / barcode produk..." autocomplete="off" required="required" style="text-overflow: ellipsis;"/>
                                                     <input type="hidden" class="product-id-input" name="product_id[]" required="required"/>
                                                     <input type="hidden" class="barcode-input" name="barcode[]"/>
                                                 </div>
-                                                <div class="col-6 col-md-4 mb-2">
+                                                <div class="col-6 col-md-2 mb-2">
                                                     <label class="form-label small font-weight-bold">Harga Jual</label>
                                                     <input type="number" step="any" min="0" class="form-control price-unit-input" name="price_unit[]" placeholder="0" readonly="readonly"/>
                                                 </div>
@@ -154,33 +150,22 @@
 
                         if (!searchInput || !hiddenIdInput || !datalist) return;
 
-                        var val = searchInput.value ? searchInput.value.trim().toLowerCase() : '';
+                        var val = searchInput.value;
                         var options = datalist.options;
-                        var matchedOption = null;
+                        var matched = false;
 
-                        if (val) {
-                            for (var i = 0; i &lt; options.length; i++) {
-                                var opt = options[i];
-                                var optVal = (opt.value || '').trim().toLowerCase();
-                                var optBarcode = (opt.getAttribute('data-barcode') || '').trim().toLowerCase();
-                                var optName = (opt.getAttribute('data-name') || '').trim().toLowerCase();
-
-                                if (val === optVal || (optBarcode &amp;&amp; val === optBarcode) || (optName &amp;&amp; val === optName)) {
-                                    matchedOption = opt;
-                                    break;
-                                }
+                        for (var i = 0; i &lt; options.length; i++) {
+                            var opt = options[i];
+                            if (opt.value === val) {
+                                hiddenIdInput.value = opt.getAttribute('data-id') || '';
+                                if (barcodeInput) barcodeInput.value = opt.getAttribute('data-barcode') || '';
+                                if (priceInput) priceInput.value = opt.getAttribute('data-price') || '0';
+                                matched = true;
+                                break;
                             }
                         }
 
-                        if (matchedOption) {
-                            var prodName = matchedOption.getAttribute('data-name') || matchedOption.value;
-                            if (searchInput.value !== prodName) {
-                                searchInput.value = prodName;
-                            }
-                            hiddenIdInput.value = matchedOption.getAttribute('data-id') || '';
-                            if (barcodeInput) barcodeInput.value = matchedOption.getAttribute('data-barcode') || '';
-                            if (priceInput) priceInput.value = matchedOption.getAttribute('data-price') || '0';
-                        } else {
+                        if (!matched) {
                             hiddenIdInput.value = '';
                             if (barcodeInput) barcodeInput.value = '';
                             if (priceInput) priceInput.value = '';

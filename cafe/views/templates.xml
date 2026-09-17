@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="cafe_order_form_template" name="Cafe Order Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <style>
+                    .cafe-header {
+                        background-color: #ff3300;
+                        color: #ffffff;
+                        padding: 25px 15px;
+                        text-align: center;
+                        margin-bottom: 25px;
+                    }
+                    .cafe-header h1 {
+                        font-weight: 700;
+                        margin-bottom: 5px;
+                        font-size: 28px;
+                        color: #ffffff;
+                    }
+                    .cafe-header p {
+                        font-size: 14px;
+                        margin: 0;
+                        opacity: 0.9;
+                    }
+                    .cafe-container {
+                        max-width: 650px;
+                        margin: 0 auto;
+                        padding: 0 15px 40px 15px;
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    }
+                    .form-group-custom {
+                        margin-bottom: 18px;
+                    }
+                    .form-group-custom label {
+                        font-weight: 700;
+                        color: #212529;
+                        margin-bottom: 6px;
+                        display: block;
+                    }
+                    .required-asterisk {
+                        color: #ff0000;
+                    }
+                    .custom-input {
+                        border: 1px solid #ced4da;
+                        border-radius: 6px;
+                        padding: 10px 14px;
+                        width: 100%;
+                        font-size: 15px;
+                    }
+                    .custom-input:focus {
+                        border-color: #ff3300;
+                        outline: none;
+                        box-shadow: 0 0 0 0.2rem rgba(255, 51, 0, 0.25);
+                    }
+                    .section-title {
+                        font-weight: 700;
+                        font-size: 18px;
+                        margin-top: 25px;
+                        margin-bottom: 15px;
+                        color: #111;
+                    }
+                    .order-line-box {
+                        background-color: #f6f7f9;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 15px;
+                    }
+                    .order-line-row {
+                        display: flex;
+                        gap: 12px;
+                        align-items: flex-end;
+                    }
+                    .col-product {
+                        flex: 1 1 50%;
+                    }
+                    .col-price {
+                        flex: 1 1 25%;
+                    }
+                    .col-qty {
+                        flex: 1 1 15%;
+                    }
+                    .col-action {
+                        flex: 0 0 auto;
+                    }
+                    .btn-delete-line {
+                        background-color: transparent;
+                        border: 1px solid #dc3545;
+                        color: #dc3545;
+                        border-radius: 6px;
+                        width: 38px;
+                        height: 38px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        font-size: 16px;
+                    }
+                    .btn-delete-line:hover {
+                        background-color: #dc3545;
+                        color: #ffffff;
+                    }
+                    .actions-bar {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-top: 20px;
+                        margin-bottom: 30px;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                    }
+                    .btn-add-menu {
+                        border: 1px solid #28a745;
+                        color: #28a745;
+                        background: #ffffff;
+                        padding: 6px 14px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        font-size: 13px;
+                        cursor: pointer;
+                    }
+                    .btn-add-menu:hover {
+                        background-color: #28a745;
+                        color: #ffffff;
+                    }
+                    .btn-details {
+                        border: 1px solid #17a2b8;
+                        color: #17a2b8;
+                        background: #ffffff;
+                        padding: 6px 14px;
+                        border-radius: 5px;
+                        font-weight: 600;
+                        font-size: 13px;
+                        cursor: pointer;
+                    }
+                    .btn-details:hover {
+                        background-color: #17a2b8;
+                        color: #ffffff;
+                    }
+                    .total-price-text {
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: #212529;
+                    }
+                    .total-price-value {
+                        color: #009688;
+                        font-weight: 700;
+                        font-size: 18px;
+                    }
+                    .btn-submit-order {
+                        background-color: #ff3300;
+                        color: #ffffff;
+                        border: none;
+                        width: 100%;
+                        padding: 14px;
+                        border-radius: 25px;
+                        font-size: 18px;
+                        font-weight: 700;
+                        cursor: pointer;
+                        transition: background-color 0.2s;
+                    }
+                    .btn-submit-order:hover {
+                        background-color: #e62e00;
+                        color: #ffffff;
+                    }
+
+                    /* Modal Custom Styles matching Rincian Pesanan.png */
+                    .modal-cafe-header {
+                        background-color: #ff3300;
+                        color: #ffffff;
+                        padding: 15px 20px;
+                        border-top-left-radius: .3rem;
+                        border-top-right-radius: .3rem;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+                    .modal-cafe-header .modal-title {
+                        color: #ffffff;
+                        font-weight: 700;
+                        font-size: 18px;
+                        margin: 0;
+                    }
+                    .modal-cafe-header .close-btn {
+                        color: #ffffff;
+                        background: none;
+                        border: none;
+                        font-size: 22px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        opacity: 0.9;
+                    }
+                    .modal-cafe-header .close-btn:hover {
+                        opacity: 1;
+                    }
+                    .customer-info-box {
+                        background-color: #f6f7f9;
+                        border-radius: 6px;
+                        padding: 15px;
+                        margin-bottom: 20px;
+                        font-size: 15px;
+                        color: #212529;
+                    }
+                    .customer-info-box p {
+                        margin-bottom: 6px;
+                    }
+                    .customer-info-box p:last-child {
+                        margin-bottom: 0;
+                    }
+                    .menu-empty-box {
+                        border: 1px solid #ced4da;
+                        border-radius: 6px;
+                        padding: 12px;
+                        text-align: center;
+                        color: #6c757d;
+                        margin-top: 8px;
+                        margin-bottom: 20px;
+                        font-size: 15px;
+                    }
+                    .summary-row {
+                        display: flex;
+                        justify-content: space-between;
+                        padding: 6px 0;
+                        font-size: 15px;
+                        color: #212529;
+                    }
+                    .summary-row.total-price-row {
+                        font-size: 18px;
+                        font-weight: 700;
+                        padding-top: 12px;
+                        margin-top: 6px;
+                    }
+                    .summary-row .total-teal {
+                        color: #009688;
+                        font-weight: 700;
+                    }
+                    .btn-modal-close-dark {
+                        background-color: #6c5b68;
+                        color: #ffffff;
+                        border: none;
+                        padding: 8px 24px;
+                        border-radius: 20px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }
+                    .btn-modal-close-dark:hover {
+                        background-color: #584a55;
+                        color: #ffffff;
+                    }
+                </style>
+
+                <!-- Hidden template datalist for products -->
+                <datalist id="dummy_product_datalist">
+                    <t t-foreach="products" t-as="p">
+                        <option t-att-value="p.name" t-att-data-id="p.id" t-att-data-price="p.lst_price" t-att-data-barcode="p.barcode or ''">
+                            <t t-if="p.barcode">[<t t-esc="p.barcode"/>]</t>
+                        </option>
+                    </t>
+                </datalist>
+
+                <div class="cafe-header">
+                    <h1>Formulir Pemesanan Menu Kalawai Cafe</h1>
+                </div>
+
+                <div class="cafe-container">
+                    <form id="cafe_order_form" action="/cafe/order" method="POST">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" id="lines_data" name="lines_data"/>
+
+                        <div class="form-group-custom">
+                            <label for="customer_name">Nama Pelanggan <span class="required-asterisk">*</span></label>
+                            <input type="text" id="customer_name" name="customer_name" class="custom-input" placeholder="Contoh: Budi" required="required"/>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="mobile_phone">No. HP</label>
+                            <input type="text" id="mobile_phone" name="mobile_phone" class="custom-input" placeholder="Contoh: 08123456789"/>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="table_number">Nomor Meja <span class="required-asterisk">*</span></label>
+                            <input type="text" id="table_number" name="table_number" class="custom-input" placeholder="Contoh: Meja 05" required="required"/>
+                        </div>
+
+                        <hr style="margin: 25px 0 15px 0; border-top: 1px solid #e9ecef;"/>
+
+                        <div class="section-title">Daftar Menu Pesanan</div>
+
+                        <div id="order_lines_container">
+                            <!-- Lines will be dynamically added here -->
+                        </div>
+
+                        <div class="actions-bar">
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="btn-add-menu" id="btn_add_line">+ Tambah Menu</button>
+                                <button type="button" class="btn-details" id="btn_show_details">
+                                    <i class="fa fa-list-alt"></i> Rincian Pesanan
+                                </button>
+                            </div>
+                            <div class="total-price-text">
+                                Total Harga: <span class="total-price-value" id="display_total_price">Rp. 0</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit-order">Kirim Pesanan</button>
+                    </form>
+                </div>
+
+                <!-- Modal Rincian Pesanan -->
+                <div class="modal fade" id="modalOrderDetails" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content" style="border: none; border-radius: .3rem;">
+                            <div class="modal-cafe-header">
+                                <h5 class="modal-title">Rincian &amp; Jumlah Menu Pesanan</h5>
+                                <button type="button" class="close-btn" data-dismiss="modal" aria-label="Close">&amp;times;</button>
+                            </div>
+                            <div class="modal-body" style="padding: 20px;">
+                                <div class="customer-info-box">
+                                    <p><strong>Nama Pelanggan:</strong> <span id="modal_cust_name">-</span></p>
+                                    <p><strong>Nomor Meja:</strong> <span id="modal_table_num">-</span></p>
+                                </div>
+
+                                <div style="font-weight: 700; margin-bottom: 8px; font-size: 15px; color: #111;">Daftar Menu Pesanan:</div>
+
+                                <div id="modal_menu_container">
+                                    <div class="menu-empty-box">Belum ada menu yang dipilih.</div>
+                                </div>
+
+                                <hr style="margin: 15px 0 10px 0; border-top: 1px solid #e9ecef;"/>
+
+                                <div class="summary-row">
+                                    <span>Total Jenis Menu:</span>
+                                    <strong id="modal_total_types">0 menu</strong>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Total Jumlah Qty:</span>
+                                    <strong id="modal_total_qty">0 porsi</strong>
+                                </div>
+
+                                <hr style="margin: 10px 0; border-top: 1px solid #e9ecef;"/>
+
+                                <div class="summary-row total-price-row">
+                                    <span style="color: #009688;">Total Harga:</span>
+                                    <span class="total-teal" id="modal_total_price">Rp. 0</span>
+                                </div>
+                            </div>
+                            <div class="modal-footer" style="border-top: none; padding-top: 0; padding-bottom: 20px;">
+                                <button type="button" class="btn-modal-close-dark" data-dismiss="modal">Tutup</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Konfirmasi Kirim Order -->
+                <div class="modal fade" id="modalConfirmOrder" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content" style="border: none; border-radius: .5rem;">
+                            <div class="modal-cafe-header">
+                                <h5 class="modal-title">Konfirmasi Pesanan</h5>
+                                <button type="button" class="close-btn" data-dismiss="modal" aria-label="Close">&amp;times;</button>
+                            </div>
+                            <div class="modal-body text-center" style="padding: 25px 20px;">
+                                <div style="font-size: 48px; color: #ff3300; margin-bottom: 15px;">
+                                    <i class="fa fa-question-circle"></i>
+                                </div>
+                                <h5 style="font-weight: 700; color: #212529; margin-bottom: 10px;">Kirim Pesanan Sekarang?</h5>
+                                <p class="text-muted" style="font-size: 15px; margin-bottom: 0;">Apakah Anda yakin ingin mengirim pesanan ini, atau ingin menambah menu pesanan lagi?</p>
+                            </div>
+                            <div class="modal-footer justify-content-center" style="border-top: none; padding-bottom: 25px; gap: 12px;">
+                                <button type="button" class="btn btn-outline-success px-4" id="btn_modal_add_menu" style="border-radius: 20px; font-weight: 600;">
+                                    + Tambah Menu
+                                </button>
+                                <button type="button" class="btn btn-danger px-4" id="btn_modal_confirm_yes" style="background-color: #ff3300; border-color: #ff3300; border-radius: 20px; font-weight: 600;">
+                                    Ya, Kirim
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <script type="text/javascript">
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var container = document.getElementById("order_lines_container");
+                        var btnAdd = document.getElementById("btn_add_line");
+                        var btnDetails = document.getElementById("btn_show_details");
+                        var form = document.getElementById("cafe_order_form");
+                        var totalDisplay = document.getElementById("display_total_price");
+                        var dummyDatalist = document.getElementById("dummy_product_datalist");
+
+                        var productsList = [];
+                        if (dummyDatalist) {
+                            var options = dummyDatalist.querySelectorAll("option");
+                            options.forEach(function(opt) {
+                                productsList.push({
+                                    id: parseInt(opt.getAttribute("data-id")),
+                                    name: opt.value,
+                                    price: parseFloat(opt.getAttribute("data-price")) || 0,
+                                    barcode: opt.getAttribute("data-barcode") || ""
+                                });
+                            });
+                        }
+
+                        function formatRupiah(number) {
+                            return "Rp. " + Number(number).toLocaleString("id-ID");
+                        }
+
+                        function addOrderLine() {
+                            var rowId = "line_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                            var box = document.createElement("div");
+                            box.className = "order-line-box";
+                            box.id = rowId;
+
+                            box.innerHTML = `
+                                &lt;div style="margin-bottom: 12px; display: flex; gap: 12px; align-items: flex-end;"&gt;
+                                    &lt;div style="flex: 1;"&gt;
+                                        &lt;label style="font-size:12px; font-weight:700; margin-bottom:4px; display:block;"&gt;Nama Produk &lt;span class="required-asterisk"&gt;*&lt;/span&gt;&lt;/label&gt;
+                                        &lt;input type="text" class="custom-input product-input" list="dummy_product_datalist" placeholder="Ketik nama / barcode produk..." required/&gt;
+                                        &lt;input type="hidden" class="product-id-input"/&gt;
+                                    &lt;/div&gt;
+                                    &lt;div style="flex: 0 0 auto;"&gt;
+                                        &lt;button type="button" class="btn-delete-line" title="Hapus"&gt;&amp;times;&lt;/button&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;div class="order-line-row"&gt;
+                                    &lt;div class="col-price" style="flex: 2;"&gt;
+                                        &lt;label style="font-size:12px; font-weight:700; margin-bottom:4px; display:block;"&gt;Harga Jual&lt;/label&gt;
+                                        &lt;input type="text" class="custom-input price-input" value="Rp. 0" readonly style="background-color: #e9ecef;"/&gt;
+                                    &lt;/div&gt;
+                                    &lt;div class="col-qty" style="flex: 1;"&gt;
+                                        &lt;label style="font-size:12px; font-weight:700; margin-bottom:4px; display:block;"&gt;Qty&lt;/label&gt;
+                                        &lt;input type="number" class="custom-input qty-input" value="1" min="1" step="1" required/&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            `;
+
+                            container.appendChild(box);
+
+                            var productInput = box.querySelector(".product-input");
+                            var productIdInput = box.querySelector(".product-id-input");
+                            var priceEl = box.querySelector(".price-input");
+                            var qtyEl = box.querySelector(".qty-input");
+                            var btnDelete = box.querySelector(".btn-delete-line");
+
+                            function updateSelectedProduct(allowPartial) {
+                                var val = productInput.value.trim().toLowerCase();
+                                var found = null;
+
+                                if (val) {
+                                    // First try exact match by name or barcode
+                                    for (var i = 0; i &lt; productsList.length; i++) {
+                                        var p = productsList[i];
+                                        if (p.name.toLowerCase() === val || (p.barcode &amp;&amp; p.barcode.toLowerCase() === val)) {
+                                            found = p;
+                                            break;
+                                        }
+                                    }
+                                    // If allowPartial is true (e.g. on blur/change event), try partial matching
+                                    if (!found &amp;&amp; allowPartial) {
+                                        for (var j = 0; j &lt; productsList.length; j++) {
+                                            var prod = productsList[j];
+                                            if (prod.name.toLowerCase().includes(val) || (prod.barcode &amp;&amp; prod.barcode.toLowerCase().includes(val))) {
+                                                found = prod;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (found) {
+                                    productIdInput.value = found.id;
+                                    priceEl.value = formatRupiah(found.price);
+                                    priceEl.setAttribute("data-price", found.price);
+                                    if (allowPartial) {
+                                        productInput.value = found.name;
+                                    }
+                                } else {
+                                    productIdInput.value = "";
+                                    priceEl.value = "Rp. 0";
+                                    priceEl.removeAttribute("data-price");
+                                }
+                                calculateTotal();
+                            }
+
+                            productInput.addEventListener("change", function() {
+                                updateSelectedProduct(true);
+                            });
+
+                            productInput.addEventListener("input", function() {
+                                updateSelectedProduct(false);
+                            });
+
+                            qtyEl.addEventListener("input", function () {
+                                calculateTotal();
+                            });
+
+                            btnDelete.addEventListener("click", function () {
+                                if (container.querySelectorAll(".order-line-box").length > 1) {
+                                    box.remove();
+                                    calculateTotal();
+                                } else {
+                                    alert("Minimal 1 menu pesanan harus ada.");
+                                }
+                            });
+
+                            calculateTotal();
+                        }
+
+                        function calculateTotal() {
+                            var total = 0;
+                            var boxes = container.querySelectorAll(".order-line-box");
+                            boxes.forEach(function (box) {
+                                var productIdInput = box.querySelector(".product-id-input");
+                                var priceEl = box.querySelector(".price-input");
+                                var qtyEl = box.querySelector(".qty-input");
+                                if (productIdInput.value) {
+                                    var price = parseFloat(priceEl.getAttribute("data-price")) || 0;
+                                    var qty = parseFloat(qtyEl.value) || 0;
+                                    total += price * qty;
+                                }
+                            });
+                            totalDisplay.textContent = formatRupiah(total);
+                            return total;
+                        }
+
+                        btnAdd.addEventListener("click", function () {
+                            addOrderLine();
+                        });
+
+                        btnDetails.addEventListener("click", function () {
+                            var custNameInput = document.getElementById("customer_name").value.trim();
+                            var tableNumInput = document.getElementById("table_number").value.trim();
+
+                            document.getElementById("modal_cust_name").textContent = custNameInput ? custNameInput : "-";
+                            document.getElementById("modal_table_num").textContent = tableNumInput ? tableNumInput : "-";
+
+                            var boxes = container.querySelectorAll(".order-line-box");
+                            var menuItems = [];
+                            var totalQty = 0;
+                            var grandTotal = 0;
+
+                            boxes.forEach(function (box) {
+                                var productInput = box.querySelector(".product-input");
+                                var productIdInput = box.querySelector(".product-id-input");
+                                var priceEl = box.querySelector(".price-input");
+                                var qtyEl = box.querySelector(".qty-input");
+                                if (productIdInput.value) {
+                                    var pName = productInput.value;
+                                    var price = parseFloat(priceEl.getAttribute("data-price")) || 0;
+                                    var qty = parseFloat(qtyEl.value) || 0;
+                                    var subtotal = price * qty;
+
+                                    menuItems.push({
+                                        name: pName,
+                                        price: price,
+                                        qty: qty,
+                                        subtotal: subtotal
+                                    });
+
+                                    totalQty += qty;
+                                    grandTotal += subtotal;
+                                }
+                            });
+
+                            var menuContainer = document.getElementById("modal_menu_container");
+                            if (menuItems.length === 0) {
+                                menuContainer.innerHTML = '&lt;div class="menu-empty-box"&gt;Belum ada menu yang dipilih.&lt;/div&gt;';
+                            } else {
+                                var html = '&lt;table class="table table-bordered table-sm" style="font-size:14px;"&gt;&lt;thead class="thead-light"&gt;&lt;tr&gt;&lt;th&gt;Produk&lt;/th&gt;&lt;th class="text-right"&gt;Harga&lt;/th&gt;&lt;th class="text-center"&gt;Qty&lt;/th&gt;&lt;th class="text-right"&gt;Subtotal&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;';
+                                menuItems.forEach(function (item) {
+                                    html += '&lt;tr&gt;&lt;td&gt;' + item.name + '&lt;/td&gt;&lt;td class="text-right"&gt;' + formatRupiah(item.price) + '&lt;/td&gt;&lt;td class="text-center"&gt;' + item.qty + '&lt;/td&gt;&lt;td class="text-right"&gt;' + formatRupiah(item.subtotal) + '&lt;/td&gt;&lt;/tr&gt;';
+                                });
+                                html += '&lt;/tbody&gt;&lt;/table&gt;';
+                                menuContainer.innerHTML = html;
+                            }
+
+                            document.getElementById("modal_total_types").textContent = menuItems.length + " menu";
+                            document.getElementById("modal_total_qty").textContent = totalQty + " porsi";
+                            document.getElementById("modal_total_price").textContent = formatRupiah(grandTotal);
+
+                            if (window.$ &amp;&amp; window.$.fn &amp;&amp; window.$.fn.modal) {
+                                $('#modalOrderDetails').modal('show');
+                            } else {
+                                var modalEl = document.getElementById('modalOrderDetails');
+                                if (modalEl) {
+                                    modalEl.classList.add('show');
+                                    modalEl.style.display = 'block';
+                                }
+                            }
+                        });
+
+                        // Event listener to close modal if bootstrap modal not loaded
+                        document.querySelectorAll('[data-dismiss="modal"]').forEach(function (btn) {
+                            btn.addEventListener('click', function () {
+                                document.querySelectorAll('.modal').forEach(function(m) {
+                                    if (window.$ &amp;&amp; window.$.fn &amp;&amp; window.$.fn.modal) {
+                                        $(m).modal('hide');
+                                    }
+                                    m.classList.remove('show');
+                                    m.style.display = 'none';
+                                });
+                            });
+                        });
+
+                        function showConfirmModal() {
+                            if (window.$ &amp;&amp; window.$.fn &amp;&amp; window.$.fn.modal) {
+                                $('#modalConfirmOrder').modal('show');
+                            } else {
+                                var modalEl = document.getElementById('modalConfirmOrder');
+                                if (modalEl) {
+                                    modalEl.classList.add('show');
+                                    modalEl.style.display = 'block';
+                                }
+                            }
+                        }
+
+                        function hideConfirmModal() {
+                            if (window.$ &amp;&amp; window.$.fn &amp;&amp; window.$.fn.modal) {
+                                $('#modalConfirmOrder').modal('hide');
+                            } else {
+                                var modalEl = document.getElementById('modalConfirmOrder');
+                                if (modalEl) {
+                                    modalEl.classList.remove('show');
+                                    modalEl.style.display = 'none';
+                                }
+                            }
+                        }
+
+                        var isConfirmed = false;
+
+                        form.addEventListener("submit", function (e) {
+                            if (isConfirmed) {
+                                return true;
+                            }
+
+                            e.preventDefault();
+
+                            if (!form.checkValidity()) {
+                                form.reportValidity();
+                                return false;
+                            }
+
+                            var lines = [];
+                            var boxes = container.querySelectorAll(".order-line-box");
+                            boxes.forEach(function (box) {
+                                var productIdInput = box.querySelector(".product-id-input");
+                                var priceEl = box.querySelector(".price-input");
+                                var qtyEl = box.querySelector(".qty-input");
+                                if (productIdInput.value) {
+                                    var price = parseFloat(priceEl.getAttribute("data-price")) || 0;
+                                    lines.push({
+                                        product_id: parseInt(productIdInput.value),
+                                        quantity: parseFloat(qtyEl.value) || 1,
+                                        price_unit: price
+                                    });
+                                }
+                            });
+
+                            if (lines.length === 0) {
+                                alert("Silakan pilih minimal 1 produk menu.");
+                                return false;
+                            }
+
+                            document.getElementById("lines_data").value = JSON.stringify(lines);
+
+                            showConfirmModal();
+                            return false;
+                        });
+
+                        var btnModalAddMenu = document.getElementById("btn_modal_add_menu");
+                        if (btnModalAddMenu) {
+                            btnModalAddMenu.addEventListener("click", function() {
+                                hideConfirmModal();
+                                addOrderLine();
+                            });
+                        }
+
+                        var btnModalConfirmYes = document.getElementById("btn_modal_confirm_yes");
+                        if (btnModalConfirmYes) {
+                            btnModalConfirmYes.addEventListener("click", function() {
+                                hideConfirmModal();
+                                isConfirmed = true;
+                                form.submit();
+                            });
+                        }
+
+                        // Initial line
+                        addOrderLine();
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+
+    <template id="cafe_order_success" name="Cafe Order Success">
+        <t t-call="website.layout">
+            <div class="container my-5 text-center">
+                <div class="card shadow p-5 mx-auto" style="max-width: 550px; border-radius: 12px;">
+                    <div style="font-size: 60px; color: #28a745;">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <h2 class="mt-3 font-weight-bold" style="color: #212529;">Pesanan Berhasil Dikirim!</h2>
+                    <p class="text-muted mt-2">Terima kasih, pesanan Anda telah tersimpan.</p>
+
+                    <div class="bg-light p-3 rounded text-left my-4">
+                        <p class="mb-1"><strong>Nomor Pesanan:</strong> <span t-esc="order.name"/></p>
+                        <p class="mb-1"><strong>Nama Pelanggan:</strong> <span t-esc="order.customer_name"/></p>
+                        <p class="mb-1"><strong>Nomor Meja:</strong> <span t-esc="order.table_number"/></p>
+                        <p class="mb-0"><strong>Total Harga:</strong> <span t-field="order.amount_total" t-options='{"widget": "monetary", "display_currency": order.currency_id}'/></p>
+                    </div>
+
+                    <a href="/cafe/order" class="btn btn-primary btn-lg" style="background-color: #ff3300; border-color: #ff3300; border-radius: 25px;">
+                        Buat Pesanan Baru
+                    </a>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

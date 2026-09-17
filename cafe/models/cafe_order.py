@@ -48,6 +48,12 @@ class CafeOrder(models.Model):
         store=True,
         currency_field='currency_id'
     )
+    state = fields.Selection([
+        ('draft', 'Pesanan Baru'),
+        ('loaded', 'Dimuat di Kasir'),
+        ('done', 'Selesai'),
+        ('cancel', 'Dibatalkan')
+    ], string='Status', default='draft', required=True)
 
     @api.depends('line_ids.price_subtotal')
     def _compute_amount_total(self):
@@ -60,6 +66,25 @@ class CafeOrder(models.Model):
             if vals.get('name', 'New') == 'New':
                 vals['name'] = self.env['ir.sequence'].next_by_code('cafe.order') or 'New'
         return super(CafeOrder, self).create(vals_list)
+
+    @api.model
+    def get_pending_orders(self):
+        """Mengambil daftar pesanan cafe yang berstatus 'draft' untuk Kasir POS"""
+        orders = self.search_read(
+            [('state', '=', 'draft')],
+            ['id', 'name', 'customer_name', 'mobile_phone', 'table_number', 'order_time', 'amount_total', 'line_ids']
+        )
+        for order in orders:
+            lines = self.env['cafe.order.line'].search_read(
+                [('id', 'in', order['line_ids'])],
+                ['id', 'product_id', 'quantity', 'price_unit', 'price_subtotal']
+            )
+            order['lines'] = lines
+        return orders
+
+    def action_set_loaded(self):
+        """Mengubah status pesanan menjadi 'loaded' setelah dimuat ke keranjang kasir POS"""
+        self.write({'state': 'loaded'})
 
 
 class CafeOrderLine(models.Model):

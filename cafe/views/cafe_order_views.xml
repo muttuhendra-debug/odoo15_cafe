@@ -6,9 +6,6 @@
         <field name="model">cafe.order</field>
         <field name="arch" type="xml">
             <form string="Cafe Order">
-                <header>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,loaded,done,cancel"/>
-                </header>
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -60,7 +57,6 @@
                 <field name="mobile_phone"/>
                 <field name="table_number"/>
                 <field name="amount_total"/>
-                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'loaded'" decoration-success="state == 'done'"/>
             </tree>
         </field>
     </record>
@@ -75,11 +71,8 @@
                 <field name="customer_name"/>
                 <field name="table_number"/>
                 <field name="mobile_phone"/>
-                <filter string="Pesanan Baru" name="filter_draft" domain="[('state', '=', 'draft')]"/>
-                <filter string="Dimuat di Kasir" name="filter_loaded" domain="[('state', '=', 'loaded')]"/>
                 <group expand="0" string="Group By">
                     <filter string="Table Number" name="group_by_table" context="{'group_by': 'table_number'}"/>
-                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
                     <filter string="Order Time" name="group_by_order_time" context="{'group_by': 'order_time'}"/>
                 </group>
             </search>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="CafeOrdersButton" owl="1">
+        <span class="control-button cafe-orders-button btn btn-light text-left">
+            <i class="fa fa-coffee me-1"/>
+            <span>Pesanan Cafe</span>
+        </span>
+    </t>
+</templates>

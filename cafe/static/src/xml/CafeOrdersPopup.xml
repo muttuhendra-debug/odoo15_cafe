@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="CafeOrdersPopup" owl="1">
+        <div role="dialog" class="modal-dialog">
+            <div class="popup popup-selection cafe-orders-popup" style="max-width: 700px; width: 90%;">
+                <header class="title bg-primary text-white p-3">
+                    <t t-esc="props.title" />
+                </header>
+                <main class="body p-3" style="max-height: 400px; overflow-y: auto;">
+                    <t t-if="props.orders and props.orders.length > 0">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>No. Order</th>
+                                    <th>Waktu</th>
+                                    <th>Pelanggan</th>
+                                    <th>Meja</th>
+                                    <th>Total</th>
+                                    <th>Pilih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="props.orders" t-as="order" t-key="order.id">
+                                    <tr t-att-class="state.selectedOrder and state.selectedOrder.id === order.id ? 'table-primary' : ''"
+                                        t-on-click="selectOrder(order)" style="cursor: pointer;">
+                                        <td><strong><t t-esc="order.name"/></strong></td>
+                                        <td><t t-esc="order.order_time"/></td>
+                                        <td><t t-esc="order.customer_name"/></td>
+                                        <td><span class="badge bg-secondary"><t t-esc="order.table_number"/></span></td>
+                                        <td><t t-esc="env.pos.format_currency(order.amount_total)"/></td>
+                                        <td>
+                                            <input type="radio" name="selected_cafe_order"
+                                                   t-att-checked="state.selectedOrder and state.selectedOrder.id === order.id"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                    <t t-else="">
+                        <div class="text-center py-4 text-muted">
+                            <i class="fa fa-info-circle fa-2x mb-2"></i>
+                            <p>Tidak ada pesanan cafe pending saat ini.</p>
+                        </div>
+                    </t>
+                </main>
+                <footer class="footer p-3 d-flex justify-content-end gap-2">
+                    <div class="button confirm btn btn-primary" t-att-class="{ disabled: !state.selectedOrder }" t-on-click="confirm">
+                        <t t-esc="props.confirmText" />
+                    </div>
+                    <div class="button cancel btn btn-secondary" t-on-click="cancel">
+                        <t t-esc="props.cancelText" />
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </t>
+</templates>

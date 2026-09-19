@@ -25,10 +25,6 @@
             'cafe/static/src/xml/CafeOrdersButton.xml',
             'cafe/static/src/xml/CafeOrdersPopup.xml',
         ],
-        'web.assets_qweb': [
-            'cafe/static/src/xml/CafeOrdersButton.xml',
-            'cafe/static/src/xml/CafeOrdersPopup.xml',
-        ],
     },
     'installable': True,
     'application': True,

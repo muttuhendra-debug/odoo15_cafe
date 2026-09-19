@@ -22,7 +22,7 @@
                             <tbody>
                                 <t t-foreach="props.orders" t-as="order" t-key="order.id">
                                     <tr t-att-class="state.selectedOrder and state.selectedOrder.id === order.id ? 'table-primary' : ''"
-                                        t-on-click="selectOrder(order)" style="cursor: pointer;">
+                                        t-on-click="() => this.selectOrder(order)" style="cursor: pointer;">
                                         <td><strong><t t-esc="order.name"/></strong></td>
                                         <td><t t-esc="order.order_time"/></td>
                                         <td><t t-esc="order.customer_name"/></td>

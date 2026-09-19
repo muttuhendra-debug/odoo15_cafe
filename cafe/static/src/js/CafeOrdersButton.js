@@ -75,14 +75,14 @@ odoo.define('cafe.CafeOrdersButton', function(require) {
 
     CafeOrdersButton.template = 'CafeOrdersButton';
 
+    Registries.Component.add(CafeOrdersButton);
+
     ProductScreen.addControlButton({
         component: CafeOrdersButton,
         condition: function() {
             return true;
         },
     });
-
-    Registries.Component.add(CafeOrdersButton);
 
     return CafeOrdersButton;
 });
